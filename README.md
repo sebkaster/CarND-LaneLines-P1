@@ -55,7 +55,7 @@ conda activate lane_lines_env
 conda install pip
 ```
 
-4. Install required python modules
+5. Install required python modules
 ```
 python -m pip install -r requirements.txt
 ```
