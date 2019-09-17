@@ -6,15 +6,13 @@
 
 **Finding Lane Lines on the Road**
 
-The goal of this project are the following:
-* Make a pipeline that finds lane lines on the road
-* Reflect on your work in a written report
+In this project lane lines in images are detected using Python and OpenCV.
 
 ---
 
-### Reflection
+### Report
 
-### 1) Describe your pipeline. As part of the description, explain how you modified the draw_lines() function.
+### 1) Pipeline 
 
 My pipeline consists of ten steps:
 
@@ -29,7 +27,7 @@ My pipeline consists of ten steps:
 9. Smoothing of Lines
 10. Annotate Image by Boundaries
 
-In the following these steps are explained and demonstrated by this example image: 
+In the following, these steps are explained and demonstrated by this example image: 
 
 ![Example Image](test_images/solidWhiteCurve.jpg)
 **Figure 1** - Input Image
@@ -69,54 +67,78 @@ Thus, I used Gaussian Smoothing with a kernel size of 7. The blurred image is sh
 The Canny algorithm is used for the edge detection. This function takes as input a lower and an upper threshold. 
 If a pixel gradient is higher than the upper threshold, the pixel is accepted as an edge
 If a pixel gradient value is below the lower threshold, then it is rejected. 
-If the pixel gradient is between the two thresholds, then it will be accepted only if it is connected to a pixel that is above the upper threshold.
-Instead of selecting a fixed lower and upper bound I determine the thresholds dynamically for every image. 
-
-
-In practice, ```sigma=0.33``` tends to give good results on most images.
+If the pixel gradient is between the two thresholds, then it will be accepted only if it is connected to a pixel that is above the upper threshold.  
+One issue with Canny edge detection algorithm is that we need to specify a high threshold and a low threshold. The selection of those threshold values affect the quality of the detected edge greatly.
+Therefore, I decided to select the two thresholds automatically. I calculated the thresholds based on the median color in the gray scale image. 
+The lower threshold is `0.66 * median_intensity` and the upper one `1.33 * median_intensity` accordingly.
+                                                                
 
 ![Example Image](test_images_edges/solidWhiteCurve.jpg)
 
 #### 6. Region of Interest
 
+As can be seen there are many edges detected by Canny but this is actually not we want as it contains not important sections of the image like the sky, hills, and other lanes. Thus, I defined a region of interest (ROI). 
+This region of interest is a polygon constructed based on the shape of the input image. The region of interest for our example image can be seen in the image below (in green).
+
 ![Example Image](test_images_roi_mask/solidWhiteCurve.jpg)
+
+This region of interest is applied on the detected edges. Edges outside this region are excluded:
 
 ![Example Image](test_images_roi_mask_applied/solidWhiteCurve.jpg)
 
 #### 7. Line Detection by Hough Transformation
 
+I am using Hough Line Transformation to detect lines in the edge image. I used the following parameters:
+
+* rho = 2,
+* theta = pi/180,
+* threshold = 30,
+* min_line_length = 40,
+* max_line_gap = 100.
+
 ![Example Image](test_images_hough_lines/solidWhiteCurve.jpg)
 
 #### 8. Construct Boundary Lines
+
+Multiple lines are detected by the Hough Line Transformation. I separated these lines based on the slope into a right and left boundary line.
+The left boundary has a positive slope, and the right lane has a negative slope. With all these line coordinate, one can find the best first order polynomial line by least-square fitting. This is performed for the left and right boundary separately.
+This procedure results in two lines of the form ```y = mx + b```:
 
 ![Example Image](test_images_lane_boundaries/solidWhiteCurve.jpg)
 
 #### 9. Smoothing of Lines
 
+__Note: This step is only applied for videos and not for single images!__
+
+A video is a sequence of frames. Therefore, I used the results from previous frames to smooth the boundary lines. By doing so, one can identify high deviations and avoid _shaking_ between frames.
+I used a data structure to store the last five boundary lines parameters. Based on this history and the current parameters of the boundary lines, I calculate a mean value for the slope and intercept.
+In case, the slope or intercept of the left or right boundary differs by more than 15% with respect to previous frames, I omit the current parameters and
+determine the parameters from the history.
 
 #### 10. Annotate Image by Boundaries
 
+Finally, the lane line boundaries are stacked in the original image:
+
 ![Example Image](test_images_output/solidWhiteCurve.jpg)
 
-First, I converted the images to grayscale, then I .... 
-
-In order to draw a single line on the left and right lanes, I modified the draw_lines() function by ...
-
-If you'd like to include images to show how the pipeline works, 
+### 2) Shortcomings of the pipeline
 
 
+1. One potential shortcoming is the boundary construction. Currently, I use a first order polynomial to approximate the lane boundaries. This works great for straight lanes but does not work so well for curvy road segments.  
+2. Another shortcoming are the fixed parameters of the pipeline. While I tried to determine parameters dynamically (e.g. automatic thresholds for canny), there are still a lot of fixed values that might not work well for other examples.
 
+### 3) Possible improvements to the pipeline
 
-### 2) Identify potential shortcomings with your current pipeline
+1. Straigh line problem
 
+A possible improvement would be to approximate the boundary lines more accurately. A higher order polynomial should provide a better solution. A more advanced solution could be distinguishing between three segments:
 
-One potential shortcoming would be what would happen when ... 
+* straight lines,
+* clothoids,
+* arcs.
 
-Another shortcoming could be ...
+Based on these segments the boundary could be constructed.
 
+2. Fixed parameters
 
-### 3) Suggest possible improvements to your pipeline
-
-A possible improvement would be to ...
-
-Another potential improvement could be to ...
+This issue could be fixed by using machine learning techniques. A deep neural network could be trained on collected data.
