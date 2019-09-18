@@ -65,7 +65,7 @@ python -m pip install -r requirements.txt
 
 In order to use this project start jupyter by typing `jupyter notebook` in your Anaconda environment. The notebook _P1.ipynb_ shows the implementation of the whole pipeline for single road images and videos. Run the cells to see how this pipeline works. \\
 
-Moreover, you can use the pipeline to process your own images or videos in the notebook as shown below. Tune the configuration parameters to optimze the pipeline on your data samples.
+Moreover, you can use the pipeline to process your own images or videos in the notebook as shown below. Tune the configuration parameters to optimize the pipeline on your data samples.
 
 ### Single Image
 

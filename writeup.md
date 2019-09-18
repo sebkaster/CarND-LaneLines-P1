@@ -49,7 +49,7 @@ The result of the color selection is shown below.
 
 #### 3. Grayscale Transform
 
-The resulting image is converted into gray scaled image in order to detect shapes, see Fig. 5. In a greyscale image the value of each pixel is a single sample representing the amount of light.
+The resulting image is converted into a grayscale image in order to detect shapes, see Fig. 5. In a grayscale image the value of each pixel is a single sample representing the amount of light.
 
 ![Example Image](examples/grayscaled.jpg)
 **Figure 3** - Grayscale Image
@@ -69,22 +69,22 @@ The Canny algorithm is used for the edge detection. This function takes as input
 * If a pixel gradient value is below the lower threshold, then it is rejected. 
 * If the pixel gradient is between the two thresholds, then it will be accepted only if it is connected to a pixel that is above the upper threshold.  
 
-One issue with Canny edge detection algorithm is that we need to specify a high threshold and a low threshold. The selection of those threshold values affect the quality of the detected edge greatly.
+One issue is that we need to specify a high threshold and a low threshold. The selection of those threshold values affect the quality of the detected edge greatly.
 Therefore, I decided to select the two thresholds automatically. I calculated the thresholds based on the median intensity in the grayscale image. 
-The lower threshold is `0.66 * median_intensity` and the upper one `1.33 * median_intensity` accordingly.
+The lower threshold is `0.66 * median_intensity` and the upper one `1.33 * median_intensity` accordingly. The detected edges are shown in Fig. 5.
                                                                 
 ![Example Image](examples/edges.jpg)
 **Figure 5** - Canny Edge Detection
 
 #### 6. Region of Interest
 
-As can be seen there are many edges detected by Canny but this is actually not we want as it contains not important sections of the image like the sky, hills, and other lanes. Thus, I defined a region of interest (ROI). 
+As can be seen in Fig. 5 there are many edges detected by Canny but this is actually not we want as it contains not important sections of the image like the sky, hills, and other lanes. Thus, I defined a region of interest (ROI). 
 This region of interest is a polygon constructed based on the shape of the input image. The region of interest for our example image can be seen in the image below (in green).
 
 ![Example Image](examples/roi_mask.jpg)
 **Figure 6** - ROI Mask on Input Image
 
-This region of interest is applied on the detected edges. Edges outside this region are excluded:
+This region of interest is applied on the detected edges. Edges outside this region are excluded, see Fig. 7.
 
 ![Example Image](examples/roi_mask_applied.jpg)
 **Figure 7** - ROI Mask Applied on Edges
@@ -100,7 +100,7 @@ I am using Hough Line Transformation to detect lines in the edge image. Therefor
 * max_line_gap = 100.
 
 ![Example Image](examples/hough_lines.jpg)
-**Figure 8** - Detected Hough Lines
+**Figure 8** - Hough Lines
 
 #### 8. Construct Boundary Lines
 
@@ -131,11 +131,11 @@ Finally, the lane line boundaries are stacked on the original image:
 
 
 1. One potential shortcoming is the boundary construction. Currently, I use a first order polynomial to approximate the lane boundaries. This works great for straight lanes but does not work so well for curvy road segments.  
-2. Another shortcoming are the fixed parameters of the pipeline. While I tried to determine parameters dynamically (e.g. automatic thresholds for canny), there are still a lot of fixed values that might not work well for other data samples (e.g. different lightning conditions).
+2. Another shortcoming are the fixed parameters of the pipeline. While I tried to determine parameters dynamically (e.g. automatic thresholds for canny), there are still a lot of fixed values that might not work well for other data samples (e.g. different light conditions).
 
 ### 3) Possible improvements to the pipeline
 
-1. Straight line problem
+1. Different Road Segments
 
     One possible improvement would be to approximate the boundary lines more accurately. A higher order polynomial should provide a better solution especially for curvy road segments.  
     A more advanced solution could be achieved by distinguishing between three road segments:
@@ -146,6 +146,6 @@ Finally, the lane line boundaries are stacked on the original image:
 
     Based on these segments, the boundary could be constructed accurately.
 
-2. Fixed parameters
+2. Fixed Parameters
 
     This issue could be fixed by using machine learning techniques. A deep neural network could be trained on collected data.
