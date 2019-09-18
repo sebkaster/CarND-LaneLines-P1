@@ -49,7 +49,7 @@ The result of the color selection is shown below.
 
 #### 3. Grayscale Transform
 
-The resulting image is converted into a grayscale image in order to detect shapes, see Fig. 5. In a grayscale image the value of each pixel is a single sample representing the amount of light.
+The resulting image is converted into a grayscale image in order to detect shapes, see Fig. 3. In a grayscale image the value of each pixel is a single sample representing the amount of light.
 
 ![Example Image](examples/grayscaled.jpg)
 **Figure 3** - Grayscale Image
